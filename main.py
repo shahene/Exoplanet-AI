@@ -1,48 +1,43 @@
 import pandas as pd
 import matplotlib.pyplot as plt
 from sklearn.preprocessing import StandardScaler
+from sklearn.model_selection import train_test_split
+from sklearn.metrics import accuracy_score
+from sklearn.ensemble import RandomForestClassifier
 
 # Replace 'path_to_koi.csv' with the actual path where you saved the KOI table CSV
-# For example, if the file is in your Downloads folder: 'Downloads/koi_cumulative.csv'
 file_path = './kepler_cumulative.csv'
 
 # Load the CSV file into a pandas DataFrame
 df_koi = pd.read_csv(file_path)
 
-# Display the first few rows of the data to get a sense of the structure
+# Fill missing values in numeric columns with the median
 numeric_columns = df_koi.select_dtypes(include=['float', 'int']).columns
 df_koi[numeric_columns] = df_koi[numeric_columns].fillna(df_koi[numeric_columns].median())
 
-print(df_koi.isnull().sum())
+# Select relevant features
+features = ['koi_period', 'koi_prad', 'koi_depth', 'koi_impact']
+X = df_koi[features]
 
-# # Get a summary of the dataset
-# print(df_koi.info())
-# df_koi_cleaned = df_koi.fillna(df_koi.median())
+# Scale the features
+scaler = StandardScaler()
+X_scaled = scaler.fit_transform(X)
 
-# # Count the number of confirmed exoplanets
-# confirmed_planets = df_koi[df_koi['koi_disposition'] == 'CONFIRMED']
-# print(f"Number of confirmed exoplanets: {len(confirmed_planets)}")
+# Define the target variable (labels)
+y = df_koi['koi_disposition'].apply(lambda x: 1 if x == 'CONFIRMED' else 0)
 
-# # Check unique dispositions in the dataset
-# print(df_koi['koi_disposition'].value_counts())
+# Split the data into training and testing sets
+X_train, X_test, y_train, y_test = train_test_split(X_scaled, y, test_size=0.2, random_state=42)
 
+# Initialize the Random Forest model
+rf_model = RandomForestClassifier(n_estimators=100, random_state=42)
 
-# plt.hist(df_koi['koi_period'], bins=50)
-# plt.title('Distribution of Orbital Periods')
-# plt.xlabel('Orbital Period (Days)')
-# plt.ylabel('Count')
-# plt.show()
+# Train the model on the training data
+rf_model.fit(X_train, y_train)
 
-# plt.scatter(df_koi['koi_prad'], df_koi['koi_period'])
-# plt.title('Planet Radius vs Orbital Period')
-# plt.xlabel('Planet Radius (Earth Radii)')
-# plt.ylabel('Orbital Period (Days)')
-# plt.show()
+# Make predictions on the test set
+y_pred_rf = rf_model.predict(X_test)
 
-
-# features = ['koi_period', 'koi_prad', 'koi_depth', 'koi_impact']
-# X = df_koi_cleaned[features]
-
-# # Normalize the features
-# scaler = StandardScaler()
-# X_scaled = scaler.fit_transform(X)
+# Calculate accuracy of the Random Forest model
+rf_accuracy = accuracy_score(y_test, y_pred_rf)
+print("Random Forest Model Accuracy:", rf_accuracy)
