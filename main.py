@@ -10,36 +10,39 @@ file_path = './kepler_cumulative.csv'
 df_koi = pd.read_csv(file_path)
 
 # Display the first few rows of the data to get a sense of the structure
-print(df_koi.head())
+numeric_columns = df_koi.select_dtypes(include=['float', 'int']).columns
+df_koi[numeric_columns] = df_koi[numeric_columns].fillna(df_koi[numeric_columns].median())
 
-# Get a summary of the dataset
-print(df_koi.info())
-df_koi_cleaned = df_koi.fillna(df_koi.median())
+print(df_koi.isnull().sum())
 
-# Count the number of confirmed exoplanets
-confirmed_planets = df_koi[df_koi['koi_disposition'] == 'CONFIRMED']
-print(f"Number of confirmed exoplanets: {len(confirmed_planets)}")
+# # Get a summary of the dataset
+# print(df_koi.info())
+# df_koi_cleaned = df_koi.fillna(df_koi.median())
 
-# Check unique dispositions in the dataset
-print(df_koi['koi_disposition'].value_counts())
+# # Count the number of confirmed exoplanets
+# confirmed_planets = df_koi[df_koi['koi_disposition'] == 'CONFIRMED']
+# print(f"Number of confirmed exoplanets: {len(confirmed_planets)}")
 
-
-plt.hist(df_koi['koi_period'], bins=50)
-plt.title('Distribution of Orbital Periods')
-plt.xlabel('Orbital Period (Days)')
-plt.ylabel('Count')
-plt.show()
-
-plt.scatter(df_koi['koi_prad'], df_koi['koi_period'])
-plt.title('Planet Radius vs Orbital Period')
-plt.xlabel('Planet Radius (Earth Radii)')
-plt.ylabel('Orbital Period (Days)')
-plt.show()
+# # Check unique dispositions in the dataset
+# print(df_koi['koi_disposition'].value_counts())
 
 
-features = ['koi_period', 'koi_prad', 'koi_depth', 'koi_impact']
-X = df_koi_cleaned[features]
+# plt.hist(df_koi['koi_period'], bins=50)
+# plt.title('Distribution of Orbital Periods')
+# plt.xlabel('Orbital Period (Days)')
+# plt.ylabel('Count')
+# plt.show()
 
-# Normalize the features
-scaler = StandardScaler()
-X_scaled = scaler.fit_transform(X)
+# plt.scatter(df_koi['koi_prad'], df_koi['koi_period'])
+# plt.title('Planet Radius vs Orbital Period')
+# plt.xlabel('Planet Radius (Earth Radii)')
+# plt.ylabel('Orbital Period (Days)')
+# plt.show()
+
+
+# features = ['koi_period', 'koi_prad', 'koi_depth', 'koi_impact']
+# X = df_koi_cleaned[features]
+
+# # Normalize the features
+# scaler = StandardScaler()
+# X_scaled = scaler.fit_transform(X)
